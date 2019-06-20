@@ -1,0 +1,10 @@
+# Setup Open Sky API
+
+Um die Open Sky API nutzen zu können, müssen Sie die Java-Bibliothek ihrem lokalem Maven-Repository hinzufügen.
+Dazu downloaden Sie zunächst den (Java) Source-Code [[1]](https://github.com/openskynetwork/opensky-api).
+Führen Sie anschließend im Unterordner java `mvn clean install` aus.
+*Hinweis: Gegebenenfalls müssen Sie zunächst maven [[2]](https://maven.apache.org/) auf Ihrem System installieren.*
+
+[1] https://github.com/openskynetwork/opensky-api
+
+[2] https://maven.apache.org/
