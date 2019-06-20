@@ -46,12 +46,20 @@ public class EPN {
 
         EPStatement lhDestinationAirport = cepAdm.createEPL("insert into OutStream3 select *, lufthansa.Lufthansa.getArrivalAirportCode(flightNumber) as destinationAirport from OutStream2");
 
-        EPStatement loungeInfo = cepAdm.createEPL("insert into OutStream8 select *, lufthansa.Lufthansa.getAirportLounges(destinationAirport) as lounges from OutStream3");
+        EPStatement infoCompose = cepAdm.createEPL("insert into OutStream4 select * from OutStream3 as destAirport, Booking as booking where destAirport.flightNumber = booking.flightNumber");
+
+        EPStatement ecoPassenger = cepAdm.createEPL("insert into OutStream6 from OutStream4 where cabinClass='ECONOMY'");
+
+        EPStatement noEcoPassenger = cepAdm.createEPL("insert into OutStream5 from OutStream4 where cabinClass!='ECONOMY'");
+
+        EPStatement loungeInfo = cepAdm.createEPL("insert into OutStream8 select *, lufthansa.Lufthansa.getAirportLounges(destinationAirport) as lounges from OutStream5");
 
         EPStatement loungeSelector = cepAdm.createEPL("insert into OutStream9 select flightNumber, destinationAirport, " +
                 "lounges[0].name as loungeName, lounges[0].showers as showers from OutStream8");
 
-        EPStatement ife = cepAdm.createEPL("insert into FinalStream select * from OutStream9");
+        EPStatement ifeLougne = cepAdm.createEPL("insert into FinalStream select * from OutStream9");
+
+        EPStatement ifeNoLounge = cepAdm.createEPL("insert into FinalStream select * from OutStream6");
 
         // event listener
         lhFilter.addListener(new CEPListener("lhFilter"));
@@ -59,7 +67,7 @@ public class EPN {
         lhDestinationAirport.addListener(new CEPListener("lhDestinationAirport"));
         loungeInfo.addListener(new CEPListener("loungeInfo"));
         loungeSelector.addListener(new CEPListener("loungeSelector"));
-        ife.addListener(new CEPListener("ife"));
+        ifeNoLounge.addListener(new CEPListener("ife"));
 
         // send events to engine
         Thread thread1 = new Thread() {
@@ -71,7 +79,7 @@ public class EPN {
         Thread thread2 = new Thread() {
             public void run() {
                 // Enter your OWM key here
-                String owmKey = "";
+                String owmKey = "5dc29b69d310acbbaa43440bc1382d75";
                 OWM owm = new OWM(owmKey);
                 owm.setUnit(OWM.Unit.METRIC);
                 sendWeatherEvents(owm);
