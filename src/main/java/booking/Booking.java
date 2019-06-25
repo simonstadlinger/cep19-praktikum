@@ -35,4 +35,12 @@ public class Booking {
         this.passengerName = passengerName;
     }
 
+    @Override
+    public String toString() {
+        return "Booking{" +
+                "flightNumber='" + flightNumber + '\'' +
+                ", cabinClass=" + cabinClass +
+                ", passengerName='" + passengerName + '\'' +
+                '}';
+    }
 }

@@ -14,10 +14,10 @@ import java.util.LinkedHashMap;
 public class Lufthansa {
     private static String baseUrl = "https://api.lufthansa.com/v1/";
     // Enter your client id here
-    private static String clientId = "";
+    private static String clientId = "3ms3rzfsd6kf24ruyd8dut7u";
     // Enter your client secret here
-    private static String clientSecret = "";
-    private static String bearer = "";
+    private static String clientSecret = "HagvpJDta6";
+    private static String bearer = "gwtpp9y4krda7csur7f58w94";
 
     private static ArrayList<String> flightNumberBlacklist;
     private static ArrayList<String> airportBlacklist;
