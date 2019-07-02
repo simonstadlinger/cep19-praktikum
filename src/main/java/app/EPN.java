@@ -42,31 +42,54 @@ public class EPN {
         // event queries (EPAs)
         EPStatement lhFilter = cepAdm.createEPL("insert into OutStream1 select * from StateVector(callsign regexp '[ \\t\\n\\f\\r]*(EWG|DLH|AUA|SWR)[0-9]{1,4}[ \\t\\n\\f\\r]*')");
 
-        EPStatement callsignToFlightNumber = cepAdm.createEPL("insert into OutStream2 select *, utils.Callsign.icaoToIata(callsign) as flightNumber from OutStream1");
+        EPStatement callsignToFlightNumber = cepAdm.createEPL("insert into OutStream2 select *, utils.Callsign.icaoToIata(callsign) " +
+                "as flightNumber from OutStream1");
 
-        EPStatement lhDestinationAirport = cepAdm.createEPL("insert into OutStream3 select *, lufthansa.Lufthansa.getArrivalAirportCode(flightNumber) as destinationAirport from OutStream2");
+        EPStatement lhDestinationAirport = cepAdm.createEPL("insert into OutStream3 select *, " +
+                "lufthansa.Lufthansa.getArrivalAirportCode(flightNumber) as destinationAirport from OutStream2");
 
-        EPStatement infoCompose = cepAdm.createEPL("insert into OutStream4 select * from OutStream3.win:length(5) as o3, Booking.win:length(5) as b where o3.flightNumber = b.flightNumber");
+        EPStatement infoCompose = cepAdm.createEPL("insert into OutStream4 select " +
+                "o3.flightNumber,o3.velocity, o3.longitude, o3.latitude, o3.destinationAirport, b.cabinClass, b.passengerName " +
+                "from OutStream3.win:length(5) as o3, Booking.win:length(5) as b where o3.flightNumber = b.flightNumber");
 
-        EPStatement enrichETA = cepAdm.createEPL("insert into EnrichedStream1 select *, " +
-                "utils.GeoUtils.eta(utils.GeoUtils.distance(cast(lufthansa.Lufthansa.getArrivalAirportCoords(o3.flightNumber).get(0), double), cast(lufthansa.Lufthansa.getArrivalAirportCoords(o3.flightNumber).get(1), double), " +
-                "o3.latitude, o3.longitude), o3.velocity) as eta from OutStream4");
+        //lounge
+        //EPStatement EcoPassenger = cepAdm.createEPL("insert into PassengerStream select * from OutStream4 where b.cabinClass = booking.CabinClass.ECONOMY");
 
-        EPStatement enrichCities = cepAdm.createEPL("insert into FullyEnrichedStream select *, " +
-                "cities.Cities.getCity(o3.latitude, o3.longitude) as city from EnrichedStream1");
+        EPStatement noEcoPassenger = cepAdm.createEPL("insert into LoungePassengerStream select * from OutStream4 where b.cabinClass !=booking.CabinClass.ECONOMY");
 
-        EPStatement ecoPassenger = cepAdm.createEPL("insert into OutStream6 select * from FullyEnrichedStream where b.cabinClass = booking.CabinClass.ECONOMY");
+        EPStatement loungeInfo = cepAdm.createEPL("insert into OutStream8 select *, " +
+                "lufthansa.Lufthansa.getAirportLounges(o3.destinationAirport) as lounges from LoungePassengerStream");
 
-        EPStatement noEcoPassenger = cepAdm.createEPL("insert into OutStream5 select * from FullyEnrichedStream where b.cabinClass !=booking.CabinClass.ECONOMY");
-
-        EPStatement loungeInfo = cepAdm.createEPL("insert into OutStream8 select *, lufthansa.Lufthansa.getAirportLounges(o3.destinationAirport) as lounges from OutStream5");
-
-        EPStatement loungeSelector = cepAdm.createEPL("insert into OutStream9 select o3.flightNumber, o3.destinationAirport, " +
+        EPStatement loungeSelector = cepAdm.createEPL("insert into OutStream9 select *, " +
                 "lounges[0].name as loungeName, lounges[0].showers as showers from OutStream8");
 
-        EPStatement ifeLounge = cepAdm.createEPL("insert into PremiumFinalStream select * from OutStream9");
+        EPStatement ifeLounge = cepAdm.createEPL("insert into LoungeFinalStream select * from OutStream9");
 
-        EPStatement ifeNoLounge = cepAdm.createEPL("insert into FinalStream select * from OutStream6");
+        //enrich EPAs
+        EPStatement enrichETA = cepAdm.createEPL("insert into ETAEnrichedStream select *, " +
+                "utils.GeoUtils.eta(utils.GeoUtils.distance(cast(lufthansa.Lufthansa.getArrivalAirportCoords(o3.flightNumber).get(0), double), " +
+                "cast(lufthansa.Lufthansa.getArrivalAirportCoords(o3.flightNumber).get(1), double), " +
+                "o3.latitude, o3.longitude), o3.velocity) as eta from OutStream4");
+
+        EPStatement enrichCities = cepAdm.createEPL("insert into CityEnrichedStream select *, " +
+                "cities.Cities.getCity(o3.latitude, o3.longitude) as city from ETAEnrichedStream");
+
+        EPStatement enrichDestCity = cepAdm.createEPL("insert into EnrichedStream select *, " +
+                "cities.Cities.getCity(cast(lufthansa.Lufthansa.getArrivalAirportCoords(o3.flightNumber).get(0), double), " +
+                "cast(lufthansa.Lufthansa.getArrivalAirportCoords(o3.flightNumber).get(1), double)) as destCity " +
+                "from CityEnrichedStream");
+
+        EPStatement weather = cepAdm.createEPL("insert into WeatherCityStream select weatherList[0].mainInfo as weatherInfo, cityName as city from CurrentWeather");
+
+        EPStatement enrichWeather = cepAdm.createEPL("insert into WeatherEnrichedStream select *, weatherInfo " +
+                "from WeatherCityStream.win:length(20) as w, EnrichedStream.win:length(20) as d " +
+                "where w.city = d.destCity");
+
+        EPStatement enrichSight = cepAdm.createEPL("insert into FullyEnrichedStream select *," +
+              "cities.Cities.getSight(d.destCity, WeatherEnrichedStream.weatherInfo) as sight from WeatherEnrichedStream");
+
+        EPStatement ifeInGeneral = cepAdm.createEPL("insert into FinalStream select * from FullyEnrichedStream");
+
 
         // event listener
         lhFilter.addListener(new CEPListener("lhFilter"));
@@ -75,11 +98,15 @@ public class EPN {
         infoCompose.addListener(new CEPListener("infoCompose"));
         enrichETA.addListener(new CEPListener("enrichETA"));
         enrichCities.addListener(new CEPListener("enrichCities"));
-        ecoPassenger.addListener(new CEPListener("ecoPassenger"));
+        enrichDestCity.addListener(new CEPListener("enrichDestCity"));
+        weather.addListener(new CEPListener("weather"));
+        enrichWeather.addListener(new CEPListener("enrichWeather"));
+        enrichSight.addListener(new CEPListener("enrichSight"));
+        //ecoPassenger.addListener(new CEPListener("ecoPassenger"));
         noEcoPassenger.addListener(new CEPListener("noEcoPassenger"));
         loungeInfo.addListener(new CEPListener("loungeInfo"));
         loungeSelector.addListener(new CEPListener("loungeSelector"));
-        ifeNoLounge.addListener(new CEPListener("ife"));
+        ifeInGeneral.addListener(new CEPListener("ife"));
         ifeLounge.addListener(new CEPListener("ifeLounge"));
 
         // send events to engine
