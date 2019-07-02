@@ -13,8 +13,8 @@ class FlightStatus {
     private String flightNumber;
     private Airport departure;
     private Airport arrival;
-    private String departureDate;
-    private String arrivalDate;
+    private String departureTime;
+    private String arrivalTime;
     private String departureGate;
     private String arrivalGate;
     private String departureTerminal;
@@ -22,6 +22,9 @@ class FlightStatus {
 
 
     public FlightStatus(String flightNumber, Airport departure, Airport arrival) {
+        if (departure.equals(null)) {departure = new Airport("FRA");}
+        if (arrival.equals(null)) {arrival = new Airport("FRA");}
+
         this.flightNumber = flightNumber;
         this.departure = departure;
         this.arrival = arrival;
@@ -51,20 +54,20 @@ class FlightStatus {
         this.arrival = arrival;
     }
 
-    public String getDepartureDate(){
-        return departureDate;
+    public String getDepartureTime(){
+        return departureTime;
     }
 
-    public void setDepartureDate(String departureDate){
-        this.departureDate = departureDate;
+    public void setDepartureTime(String departureTime){
+        this.departureTime = departureTime;
     }
 
-    public String getArrivalDate(){
-        return arrivalDate;
+    public String getArrivalTime(){
+        return arrivalTime;
     }
 
-    public void setArrivalDate(String arrivalDate){
-        this.arrivalDate = arrivalDate;
+    public void setArrivalTime(String arrivalTime){
+        this.arrivalTime = arrivalTime;
     }
 
     public String getDepartureGate(){
