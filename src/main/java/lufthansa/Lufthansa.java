@@ -437,7 +437,7 @@ public class Lufthansa {
         }
     }
 
-    // TODO - handle nonexistence of Gate
+    /*// TODO - handle nonexistence of Gate
     private static String getArrivalGateFromJson(String statusAsJson) {
         JSONObject obj = new JSONObject(statusAsJson);
         if (((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight") instanceof JSONObject) {
@@ -447,9 +447,20 @@ public class Lufthansa {
             JSONArray flight = (JSONArray) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
             return ((JSONObject) ((JSONObject) ((JSONObject) flight.get(0)).get("Arrival")).get("Terminal")).getString("Gate");
         }
+    }*/
+
+    private static String getArrivalGateFromJson(String statusAsJson) {
+        JSONObject obj = new JSONObject(statusAsJson);
+        if (((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight") instanceof JSONObject) {
+            JSONObject flight = (JSONObject) ((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight");
+            return String.valueOf(((JSONObject) flight.get("Arrival")).get("Terminal"));
+        } else {
+            JSONArray flight = (JSONArray) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
+            return String.valueOf(((JSONObject) ((JSONObject) flight.get(0)).get("Arrival")).get("Terminal"));
+        }
     }
 
-    // TODO - handle nonexistence of Gate
+    /*// TODO - handle nonexistence of Gate
     private static String getDepartureGateFromJson(String statusAsJson) {
         JSONObject obj = new JSONObject(statusAsJson);
         if (((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight") instanceof JSONObject) {
@@ -459,9 +470,21 @@ public class Lufthansa {
             JSONArray flight = (JSONArray) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
             return ((JSONObject) ((JSONObject) ((JSONObject) flight.get(0)).get("Departure")).get("Terminal")).getString("Gate");
         }
-    }
+    }*/
 
     // TODO - handle nonexistence of Terminal
+    private static String getDepartureGateFromJson(String statusAsJson) {
+        JSONObject obj = new JSONObject(statusAsJson);
+        if (((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight") instanceof JSONObject) {
+            JSONObject flight = (JSONObject) ((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight");
+            return String.valueOf(((JSONObject) flight.get("Departure")).get("Terminal"));
+        } else {
+            JSONArray flight = (JSONArray) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
+            return String.valueOf(((JSONObject) ((JSONObject) flight.get(0)).get("Departure")).get("Terminal"));
+        }
+    }
+
+   /* // TODO - handle nonexistence of Terminal
     private static String getArrivalTerminalFromJson(String statusAsJson) {
         JSONObject obj = new JSONObject(statusAsJson);
         if (((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight") instanceof JSONObject) {
@@ -471,9 +494,21 @@ public class Lufthansa {
             JSONArray flight = (JSONArray) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
             return ((JSONObject) ((JSONObject) ((JSONObject) flight.get(0)).get("Arrival")).get("Terminal")).getString("Name");
         }
-    }
+    }*/
 
     // TODO - handle nonexistence of Terminal
+    private static String getArrivalTerminalFromJson(String statusAsJson) {
+        JSONObject obj = new JSONObject(statusAsJson);
+        if (((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight") instanceof JSONObject) {
+            JSONObject flight = (JSONObject) ((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight");
+            return String.valueOf(((JSONObject) flight.get("Arrival")).get("Terminal"));
+        } else {
+            JSONArray flight = (JSONArray) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
+            return String.valueOf(((JSONObject) ((JSONObject) flight.get(0)).get("Arrival")).get("Terminal"));
+        }
+    }
+
+    /*// TODO - handle nonexistence of Terminal
     private static String getDepartureTerminalFromJson(String statusAsJson) {
         JSONObject obj = new JSONObject(statusAsJson);
         if (((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight") instanceof JSONObject) {
@@ -482,6 +517,18 @@ public class Lufthansa {
         } else {
             JSONArray flight = (JSONArray) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
             return ((JSONObject) ((JSONObject) ((JSONObject) flight.get(0)).get("Departure")).get("Terminal")).getString("Name");
+        }
+    }*/
+
+    // TODO - handle nonexistence of Terminal
+    private static String getDepartureTerminalFromJson(String statusAsJson) {
+        JSONObject obj = new JSONObject(statusAsJson);
+        if (((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight") instanceof JSONObject) {
+            JSONObject flight = (JSONObject) ((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight");
+            return String.valueOf(((JSONObject) flight.get("Departure")).get("Terminal"));
+        } else {
+            JSONArray flight = (JSONArray) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
+            return String.valueOf(((JSONObject) ((JSONObject) flight.get(0)).get("Departure")).get("Terminal"));
         }
     }
 
