@@ -15,8 +15,6 @@ class FlightStatus {
     private Airport arrival;
     private String departureTime;
     private String arrivalTime;
-    private String departureGate;
-    private String arrivalGate;
     private String departureTerminal;
     private String arrivalTerminal;
 
@@ -70,27 +68,11 @@ class FlightStatus {
         this.arrivalTime = arrivalTime;
     }
 
-    public String getDepartureGate(){
-        return departureGate;
-    }
-
-    public void setDepartureGate(String departureGate){
-        this.departureGate = departureGate;
-    }
-
-    public String getArrivalGate(){
-        return arrivalGate;
-    }
-
-    public void setArrivalGate(String arrivalGate){
-        this.arrivalGate = arrivalGate;
-    }
-
     public String getDepartureTerminal(){
         return departureTerminal;
     }
 
-    public void setDepartureTerminal(String departureTerminale){
+    public void setDepartureTerminal(String departureTerminal){
         this.departureTerminal = departureTerminal;
     }
 

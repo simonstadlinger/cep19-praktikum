@@ -50,15 +50,13 @@ public class EPN {
                 "lufthansa.Lufthansa.getArrivalAirportCode(flightNumber) as destinationAirport, " +
                 "lufthansa.Lufthansa.getDepartureTime(flightNumber) as departureTime, " +
                 "lufthansa.Lufthansa.getDepartureTerminal(flightNumber) as departureTerminal, " +
-                "lufthansa.Lufthansa.getDepartureGate(flightNumber) as departureGate, " +
                 "lufthansa.Lufthansa.getArrivalTime(flightNumber) as destinationArrivalTime, " +
-                "lufthansa.Lufthansa.getArrivalGate(flightNumber) as destinationGate, " +
                 "lufthansa.Lufthansa.getArrivalTerminal(flightNumber) as destinationTerminal " +
                 "from OutStream2");
 
         EPStatement infoCompose = cepAdm.createEPL("insert into OutStream4 select " +
                 "o3.flightNumber,o3.velocity, o3.longitude, o3.latitude, o3.departureTime, o3.destinationArrivalTime, " +
-                "o3.destinationAirport,o3.destinationGate,o3.destinationTerminal, o3.departureAirport,o3.departureTerminal,o3.departureGate, " +
+                "o3.destinationAirport,o3.destinationTerminal, o3.departureAirport,o3.departureTerminal, " +
                 "b.cabinClass, b.passengerName from OutStream3.win:length(5) as o3, Booking.win:length(5) as b where o3.flightNumber = b.flightNumber");
 
         //lounge
