@@ -55,7 +55,7 @@ public class EPN {
         //lounge
         //EPStatement EcoPassenger = cepAdm.createEPL("insert into PassengerStream select * from OutStream4 where b.cabinClass = booking.CabinClass.ECONOMY");
 
-        EPStatement noEcoPassenger = cepAdm.createEPL("insert into LoungePassengerStream select * from OutStream4 where b.cabinClass !=booking.CabinClass.ECONOMY");
+        EPStatement noEcoPassenger = cepAdm.createEPL("insert into LoungePassengerStream select * from OutStream4 where b.cabinClass != booking.CabinClass.ECONOMY");
 
         EPStatement loungeInfo = cepAdm.createEPL("insert into OutStream8 select *, " +
                 "lufthansa.Lufthansa.getAirportLounges(o3.destinationAirport) as lounges from LoungePassengerStream");
