@@ -8,6 +8,7 @@ import java.io.*;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
@@ -56,6 +57,12 @@ public class Lufthansa {
             }
             status = new FlightStatus(flightNumber, airports.get(departureAirportCode), airports.get(arrivalAirportCode));
             flightStatuses.put(flightNumber, status);
+
+            String departureDate = getDepartureDateFromJson(statusAsJson);
+            String arrivalDate = getArrivalDateFromJson(statusAsJson);
+            status.setDepartureDate(departureDate);
+            status.setArrivalDate(arrivalDate);
+
             return departureAirportCode;
         }
         flightNumberBlacklist.add(flightNumber);
@@ -84,10 +91,148 @@ public class Lufthansa {
             }
             status = new FlightStatus(flightNumber, airports.get(departureAirportCode), airports.get(arrivalAirportCode));
             flightStatuses.put(flightNumber, status);
+
+            String departureDate = getDepartureDateFromJson(statusAsJson);
+            String arrivalDate = getArrivalDateFromJson(statusAsJson);
+            status.setDepartureDate(departureDate);
+            status.setArrivalDate(arrivalDate);
+
             return arrivalAirportCode;
         }
         flightNumberBlacklist.add(flightNumber);
         return null;
+    }
+
+    public static String getArrivalDate(String flightNumber) {
+        if (flightNumberBlacklist.contains(flightNumber)) {
+            return null;
+        }
+        FlightStatus status = flightStatuses.get(flightNumber);
+        if (status != null) {
+            return status.getArrivalDate();
+        }
+        String statusAsJson = get("operations/customerflightinformation/" + flightNumber + "/" + LocalDate.now().toString());
+        if (statusAsJson != null) {
+            return createNewFlightStatus(status, flightNumber, statusAsJson).getArrivalDate();
+        }
+        flightNumberBlacklist.add(flightNumber);
+        return null;
+    }
+
+    public static String getDepartureDate(String flightNumber) {
+        if (flightNumberBlacklist.contains(flightNumber)) {
+            return null;
+        }
+        FlightStatus status = flightStatuses.get(flightNumber);
+        if (status != null) {
+            return status.getDepartureDate();
+        }
+        String statusAsJson = get("operations/customerflightinformation/" + flightNumber + "/" + LocalDate.now().toString());
+        if (statusAsJson != null) {
+            return createNewFlightStatus(status, flightNumber, statusAsJson).getDepartureDate();
+            //return departureDate;
+        }
+        flightNumberBlacklist.add(flightNumber);
+        return null;
+    }
+
+    public static String getArrivalGate(String flightNumber) {
+        if (flightNumberBlacklist.contains(flightNumber)) {
+            return null;
+        }
+        FlightStatus status = flightStatuses.get(flightNumber);
+        if (status != null) {
+            return status.getArrivalGate();
+        }
+        String statusAsJson = get("operations/customerflightinformation/" + flightNumber + "/" + LocalDate.now().toString());
+        if (statusAsJson != null) {
+            return createNewFlightStatus(status, flightNumber, statusAsJson).getArrivalGate();
+        }
+        flightNumberBlacklist.add(flightNumber);
+        return null;
+    }
+
+    public static String getDepartureGate(String flightNumber) {
+        if (flightNumberBlacklist.contains(flightNumber)) {
+            return null;
+        }
+        FlightStatus status = flightStatuses.get(flightNumber);
+        if (status != null) {
+            return status.getDepartureGate();
+        }
+        String statusAsJson = get("operations/customerflightinformation/" + flightNumber + "/" + LocalDate.now().toString());
+        if (statusAsJson != null) {
+            return createNewFlightStatus(status, flightNumber, statusAsJson).getDepartureGate();
+        }
+        flightNumberBlacklist.add(flightNumber);
+        return null;
+    }
+
+    public static String getArrivalTerminal(String flightNumber) {
+        if (flightNumberBlacklist.contains(flightNumber)) {
+            return null;
+        }
+        FlightStatus status = flightStatuses.get(flightNumber);
+        if (status != null) {
+            return status.getArrivalTerminal();
+        }
+        String statusAsJson = get("operations/customerflightinformation/" + flightNumber + "/" + LocalDate.now().toString());
+        if (statusAsJson != null) {
+            return createNewFlightStatus(status, flightNumber, statusAsJson).getArrivalTerminal();
+        }
+        flightNumberBlacklist.add(flightNumber);
+        return null;
+    }
+
+    public static String getDepartureTerminal(String flightNumber) {
+        if (flightNumberBlacklist.contains(flightNumber)) {
+            return null;
+        }
+        FlightStatus status = flightStatuses.get(flightNumber);
+        if (status != null) {
+            return status.getDepartureTerminal();
+        }
+        String statusAsJson = get("operations/customerflightinformation/" + flightNumber + "/" + LocalDate.now().toString());
+        if (statusAsJson != null) {
+            return createNewFlightStatus(status, flightNumber, statusAsJson).getDepartureTerminal();
+        }
+        flightNumberBlacklist.add(flightNumber);
+        return null;
+    }
+
+    private static FlightStatus createNewFlightStatus (FlightStatus status, String flightNumber, String statusAsJson){
+        String departureAirportCode = getDepartureAirportFromJson(statusAsJson);
+        if (!airports.containsKey(departureAirportCode)) {
+            Airport airport = new Airport(departureAirportCode);
+            airports.put(departureAirportCode, airport);
+        }
+        String arrivalAirportCode = getArrivalAirportFromJson(statusAsJson);
+        if (!airports.containsKey(arrivalAirportCode)) {
+            Airport airport = new Airport(arrivalAirportCode);
+            airports.put(arrivalAirportCode, airport);
+        }
+        status = new FlightStatus(flightNumber, airports.get(departureAirportCode), airports.get(arrivalAirportCode));
+        flightStatuses.put(flightNumber, status);
+
+        String departureDate = getDepartureDateFromJson(statusAsJson);
+        status.setDepartureDate(departureDate);
+
+        String arrivalDate = getArrivalDateFromJson(statusAsJson);
+        status.setArrivalDate(arrivalDate);
+
+        String departureGate = getDepartureGateFromJson(statusAsJson);
+        status.setDepartureGate(departureGate);
+
+        String arrivalGate = getArrivalGateFromJson(statusAsJson);
+        status.setArrivalGate(arrivalGate);
+
+        String departureTerminal = getDepartureTerminalFromJson(statusAsJson);
+        status.setDepartureTerminal(departureTerminal);
+
+        String arrivalTerminal = getArrivalTerminalFromJson(statusAsJson);
+        status.setArrivalTerminal(arrivalTerminal);
+
+        return status;
     }
 
     public static Object[] getDepartureAirportCoords(String flightNumber) {
@@ -267,6 +412,72 @@ public class Lufthansa {
         } else {
             JSONArray flight = (JSONArray) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
             return ((JSONObject) ((JSONObject) flight.get(0)).get("Departure")).getString("AirportCode");
+        }
+    }
+
+    private static String getArrivalDateFromJson(String statusAsJson) {
+        JSONObject obj = new JSONObject(statusAsJson);
+        if (((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight") instanceof JSONObject) {
+            JSONObject flight = (JSONObject) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
+            return ((JSONObject) ((JSONObject) flight.get("Arrival")).get("ScheduledTimeLocal")).getString("DateTime");
+        } else {
+            JSONArray flight = (JSONArray) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
+            return ((JSONObject) ((JSONObject) ((JSONObject) flight.get(0)).get("Arrival")).get("ScheduledTimeLocal")).getString("DateTime");
+        }
+    }
+
+    private static String getDepartureDateFromJson(String statusAsJson) {
+        JSONObject obj = new JSONObject(statusAsJson);
+        if (((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight") instanceof JSONObject) {
+            JSONObject flight = (JSONObject) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
+            return ((JSONObject) ((JSONObject) flight.get("Departure")).get("ScheduledTimeLocal")).getString("DateTime");
+        } else {
+            JSONArray flight = (JSONArray) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
+            return ((JSONObject) ((JSONObject) ((JSONObject) flight.get(0)).get("Departure")).get("ScheduledTimeLocal")).getString("DateTime");
+        }
+    }
+
+    private static String getArrivalGateFromJson(String statusAsJson) {
+        JSONObject obj = new JSONObject(statusAsJson);
+        if (((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight") instanceof JSONObject) {
+            JSONObject flight = (JSONObject) ((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight");
+            return ((JSONObject) ((JSONObject) flight.get("Arrival")).get("Terminal")).getString("Gate");
+        } else {
+            JSONArray flight = (JSONArray) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
+            return ((JSONObject) ((JSONObject) ((JSONObject) flight.get(0)).get("Arrival")).get("Terminal")).getString("Gate");
+        }
+    }
+
+    private static String getDepartureGateFromJson(String statusAsJson) {
+        JSONObject obj = new JSONObject(statusAsJson);
+        if (((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight") instanceof JSONObject) {
+            JSONObject flight = (JSONObject) ((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight");
+            return ((JSONObject) ((JSONObject) flight.get("Departure")).get("Terminal")).getString("Gate");
+        } else {
+            JSONArray flight = (JSONArray) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
+            return ((JSONObject) ((JSONObject) ((JSONObject) flight.get(0)).get("Departure")).get("Terminal")).getString("Gate");
+        }
+    }
+
+    private static String getArrivalTerminalFromJson(String statusAsJson) {
+        JSONObject obj = new JSONObject(statusAsJson);
+        if (((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight") instanceof JSONObject) {
+            JSONObject flight = (JSONObject) ((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight");
+            return ((JSONObject) ((JSONObject) flight.get("Arrival")).get("Terminal")).getString("Gate");
+        } else {
+            JSONArray flight = (JSONArray) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
+            return ((JSONObject) ((JSONObject) ((JSONObject) flight.get(0)).get("Arrival")).get("Terminal")).getString("Name");
+        }
+    }
+
+    private static String getDepartureTerminalFromJson(String statusAsJson) {
+        JSONObject obj = new JSONObject(statusAsJson);
+        if (((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight") instanceof JSONObject) {
+            JSONObject flight = (JSONObject) ((JSONObject) ((JSONObject) obj.get("FlightInformation")).get("Flights")).get("Flight");
+            return ((JSONObject) ((JSONObject) flight.get("Departure")).get("Terminal")).getString("Gate");
+        } else {
+            JSONArray flight = (JSONArray) ((JSONObject) ((JSONObject) obj.get("FlightStatusResource")).get("Flights")).get("Flight");
+            return ((JSONObject) ((JSONObject) ((JSONObject) flight.get(0)).get("Departure")).get("Terminal")).getString("Name");
         }
     }
 

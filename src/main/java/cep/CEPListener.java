@@ -10,7 +10,7 @@ public class CEPListener implements UpdateListener {
         this.id = id;
     }
     public void update(EventBean[] newData, EventBean[] oldData) {
-        if (id.equalsIgnoreCase("enrichSight")) {
+        if (id.equalsIgnoreCase("lhDestinationAirport")) {
             System.out.println("(" + id + ") " + "Event matched: " + newData[0].getUnderlying());
         }
     }

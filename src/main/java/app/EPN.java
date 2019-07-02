@@ -46,7 +46,15 @@ public class EPN {
                 "as flightNumber from OutStream1");
 
         EPStatement lhDestinationAirport = cepAdm.createEPL("insert into OutStream3 select *, " +
-                "lufthansa.Lufthansa.getArrivalAirportCode(flightNumber) as destinationAirport from OutStream2");
+                "lufthansa.Lufthansa.getDepartureDate(flightNumber) as departureDate, " +
+                "lufthansa.Lufthansa.getDepartureAirportCode(flightNumber) as departureAirport, " +
+                "lufthansa.Lufthansa.getDepartureTerminal(flightNumber) as departureTerminal, " +
+                "lufthansa.Lufthansa.getDepartureGate(flightNumber) as departureGate, " +
+                "lufthansa.Lufthansa.getArrivalDate(flightNumber) as destinationArrivalDate, " +
+                "lufthansa.Lufthansa.getArrivalAirportCode(flightNumber) as destinationAirport, " +
+                "lufthansa.Lufthansa.getArrivalGate(flightNumber) as destinationGate, " +
+                "lufthansa.Lufthansa.getArrivalTerminal(flightNumber) as destinationTerminal " +
+                "from OutStream2");
 
         EPStatement infoCompose = cepAdm.createEPL("insert into OutStream4 select " +
                 "o3.flightNumber,o3.velocity, o3.longitude, o3.latitude, o3.destinationAirport, b.cabinClass, b.passengerName " +
@@ -92,10 +100,6 @@ public class EPN {
 
         EPStatement enrichSight = cepAdm.createEPL("insert into FullyEnrichedStream select *," +
               "cities.Cities.getSight(destCity, WeatherEnrichedStream.weatherInfo) as sight from WeatherEnrichedStream");
-
-/*
-        EPStatement ifeInGeneral = cepAdm.createEPL("insert into FinalStream select * from FullyEnrichedStream");
-*/
 
         EPStatement ifeInGeneral = cepAdm.createEPL("insert into FinalStream select * from FullyEnrichedStream");
 
