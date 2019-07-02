@@ -57,8 +57,9 @@ public class EPN {
                 "from OutStream2");
 
         EPStatement infoCompose = cepAdm.createEPL("insert into OutStream4 select " +
-                "o3.flightNumber,o3.velocity, o3.longitude, o3.latitude, o3.destinationAirport, b.cabinClass, b.passengerName " +
-                "from OutStream3.win:length(5) as o3, Booking.win:length(5) as b where o3.flightNumber = b.flightNumber");
+                "o3.flightNumber,o3.velocity, o3.longitude, o3.latitude, o3.departureDate, o3.destinationArrivalDate, " +
+                "o3.destinationAirport,o3.destinationGate,o3.destinationTerminal, o3.departureAirport,o3.departureTerminal,o3.departureGate, " +
+                "b.cabinClass, b.passengerName from OutStream3.win:length(5) as o3, Booking.win:length(5) as b where o3.flightNumber = b.flightNumber");
 
         //lounge
         //EPStatement EcoPassenger = cepAdm.createEPL("insert into PassengerStream select * from OutStream4 where b.cabinClass = booking.CabinClass.ECONOMY");
