@@ -66,27 +66,36 @@ public class EPN {
         EPStatement ifeLounge = cepAdm.createEPL("insert into LoungeFinalStream select * from OutStream9");
 
         //enrich EPAs
+        // TODO - 1. beautify this, so it's not a pair
+        // TODO - 2. reduce the two api calls to one
+        EPStatement enrichCoords = cepAdm.createEPL("insert into CoordsEnrichedStream select *, " +
+                "cast(lufthansa.Lufthansa.getArrivalAirportCoords(o3.flightNumber).get(0), double) as destLat, " +
+                "cast(lufthansa.Lufthansa.getArrivalAirportCoords(o3.flightNumber).get(1), double) as destLon " +
+                "from OutStream4");
+
         EPStatement enrichETA = cepAdm.createEPL("insert into ETAEnrichedStream select *, " +
-                "utils.GeoUtils.eta(utils.GeoUtils.distance(cast(lufthansa.Lufthansa.getArrivalAirportCoords(o3.flightNumber).get(0), double), " +
-                "cast(lufthansa.Lufthansa.getArrivalAirportCoords(o3.flightNumber).get(1), double), " +
-                "o3.latitude, o3.longitude), o3.velocity) as eta from OutStream4");
+                "utils.GeoUtils.eta(utils.GeoUtils.distance(destLat, destLon, " +
+                "o3.latitude, o3.longitude), o3.velocity) as eta from CoordsEnrichedStream");
 
         EPStatement enrichCities = cepAdm.createEPL("insert into CityEnrichedStream select *, " +
                 "cities.Cities.getCity(o3.latitude, o3.longitude) as city from ETAEnrichedStream");
 
         EPStatement enrichDestCity = cepAdm.createEPL("insert into EnrichedStream select *, " +
-                "cities.Cities.getCity(cast(lufthansa.Lufthansa.getArrivalAirportCoords(o3.flightNumber).get(0), double), " +
-                "cast(lufthansa.Lufthansa.getArrivalAirportCoords(o3.flightNumber).get(1), double)) as destCity " +
-                "from CityEnrichedStream");
+                "cities.Cities.getCity(destLat, destLon) as destCity from CityEnrichedStream");
 
         EPStatement weather = cepAdm.createEPL("insert into WeatherCityStream select weatherList[0].mainInfo as weatherInfo, cityName as city from CurrentWeather");
 
-        EPStatement enrichWeather = cepAdm.createEPL("insert into WeatherEnrichedStream select *, weatherInfo " +
-                "from WeatherCityStream.win:length(20) as w, EnrichedStream.win:length(20) as d " +
+        //using 51, as we have 51 cities
+        EPStatement enrichWeather = cepAdm.createEPL("insert into WeatherEnrichedStream select d.*,  weatherInfo " +
+                "from WeatherCityStream.win:length(51) as w, EnrichedStream.win:length(51) as d " +
                 "where w.city = d.destCity");
 
         EPStatement enrichSight = cepAdm.createEPL("insert into FullyEnrichedStream select *," +
-              "cities.Cities.getSight(d.destCity, WeatherEnrichedStream.weatherInfo) as sight from WeatherEnrichedStream");
+              "cities.Cities.getSight(destCity, WeatherEnrichedStream.weatherInfo) as sight from WeatherEnrichedStream");
+
+/*
+        EPStatement ifeInGeneral = cepAdm.createEPL("insert into FinalStream select * from FullyEnrichedStream");
+*/
 
         EPStatement ifeInGeneral = cepAdm.createEPL("insert into FinalStream select * from FullyEnrichedStream");
 
@@ -96,6 +105,7 @@ public class EPN {
         callsignToFlightNumber.addListener(new CEPListener("callsignToFlightNumber"));
         lhDestinationAirport.addListener(new CEPListener("lhDestinationAirport"));
         infoCompose.addListener(new CEPListener("infoCompose"));
+        enrichCoords.addListener(new CEPListener("enrichCoords"));
         enrichETA.addListener(new CEPListener("enrichETA"));
         enrichCities.addListener(new CEPListener("enrichCities"));
         enrichDestCity.addListener(new CEPListener("enrichDestCity"));
