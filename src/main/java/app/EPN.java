@@ -51,7 +51,8 @@ public class EPN {
                 "lufthansa.Lufthansa.getDepartureTime(flightNumber) as departureTime, " +
                 "lufthansa.Lufthansa.getDepartureTerminal(flightNumber) as departureTerminal, " +
                 "lufthansa.Lufthansa.getArrivalTime(flightNumber) as destinationArrivalTime, " +
-                "lufthansa.Lufthansa.getArrivalTerminal(flightNumber) as destinationTerminal " +
+                "lufthansa.Lufthansa.getArrivalTerminal(flightNumber) as destinationTerminal, " +
+                "lufthansa.Lufthansa.getConnectingFlight(flightNumber) as destinationTerminal " +
                 "from OutStream2");
 
         EPStatement infoCompose = cepAdm.createEPL("insert into OutStream4 select " +
