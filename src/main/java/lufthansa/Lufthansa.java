@@ -122,7 +122,7 @@ public class Lufthansa {
         }
         String airportCode = getArrivalAirportCode(flightNumber);
         String arrivalTime = getArrivalTime(flightNumber);
-        String connectingFlightInfoAsJson = get("operations/customerflightinformation/arrivals/" + airportCode + "/" + arrivalTime);
+        String connectingFlightInfoAsJson = get("operations/customerflightinformation/departures/" + airportCode + "/" + arrivalTime);
         if (connectingFlightInfoAsJson != null) {
             Object connectingFlights = getConnectingFlightInfoFromJson(connectingFlightInfoAsJson);
 
