@@ -46,11 +46,18 @@ public class EPN {
                 "as flightNumber from OutStream1");
 
         EPStatement lhDestinationAirport = cepAdm.createEPL("insert into OutStream3 select *, " +
-                "lufthansa.Lufthansa.getArrivalAirportCode(flightNumber) as destinationAirport from OutStream2");
+                "lufthansa.Lufthansa.getDepartureAirportCode(flightNumber) as departureAirport, " +
+                "lufthansa.Lufthansa.getArrivalAirportCode(flightNumber) as destinationAirport, " +
+                "lufthansa.Lufthansa.getDepartureTime(flightNumber) as departureTime, " +
+                "lufthansa.Lufthansa.getDepartureTerminal(flightNumber) as departureTerminal, " +
+                "lufthansa.Lufthansa.getArrivalTime(flightNumber) as destinationArrivalTime, " +
+                "lufthansa.Lufthansa.getArrivalTerminal(flightNumber) as destinationTerminal " +
+                "from OutStream2");
 
         EPStatement infoCompose = cepAdm.createEPL("insert into OutStream4 select " +
-                "o3.flightNumber,o3.velocity, o3.longitude, o3.latitude, o3.destinationAirport, b.cabinClass, b.passengerName " +
-                "from OutStream3.win:length(5) as o3, Booking.win:length(5) as b where o3.flightNumber = b.flightNumber");
+                "o3.flightNumber,o3.velocity, o3.longitude, o3.latitude, o3.departureTime, o3.destinationArrivalTime, " +
+                "o3.destinationAirport,o3.destinationTerminal, o3.departureAirport,o3.departureTerminal, " +
+                "b.cabinClass, b.passengerName from OutStream3.win:length(5) as o3, Booking.win:length(5) as b where o3.flightNumber = b.flightNumber");
 
         //lounge
         //EPStatement EcoPassenger = cepAdm.createEPL("insert into PassengerStream select * from OutStream4 where b.cabinClass = booking.CabinClass.ECONOMY");
@@ -92,10 +99,6 @@ public class EPN {
 
         EPStatement enrichSight = cepAdm.createEPL("insert into FullyEnrichedStream select *," +
               "cities.Cities.getSight(destCity, WeatherEnrichedStream.weatherInfo) as sight from WeatherEnrichedStream");
-
-/*
-        EPStatement ifeInGeneral = cepAdm.createEPL("insert into FinalStream select * from FullyEnrichedStream");
-*/
 
         EPStatement ifeInGeneral = cepAdm.createEPL("insert into FinalStream select * from FullyEnrichedStream");
 
